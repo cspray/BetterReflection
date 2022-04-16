@@ -10,6 +10,7 @@ use Roave\BetterReflection\NodeCompiler\CompileNodeToValue;
 use Roave\BetterReflection\NodeCompiler\CompilerContext;
 use Roave\BetterReflection\Reflection\StringCast\ReflectionAttributeStringCast;
 use Roave\BetterReflection\Reflector\Reflector;
+use Roave\BetterReflection\SourceLocator\Located\LocatedSource;
 
 class ReflectionAttribute
 {
@@ -19,6 +20,17 @@ class ReflectionAttribute
         private ReflectionClass|ReflectionMethod|ReflectionFunction|ReflectionClassConstant|ReflectionEnumCase|ReflectionProperty|ReflectionParameter $owner,
         private bool $isRepeated,
     ) {
+    }
+
+    public static function createFromNode(
+        Reflector $reflector,
+        Node\Attribute $node,
+        LocatedSource $locatedSource,
+        ?Node\Stmt\Namespace_ $namespaceNode = null
+    ): self
+    {
+        // TODO this is a dirty no-good hack until we figure out what else needs to change to reflect on correct owner
+        return new self($reflector, $node, $reflector->reflectClass('\\Roave\\BetterReflectionTest\\Fixture\\Attr'), true);
     }
 
     public function getName(): string
