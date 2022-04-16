@@ -29,8 +29,13 @@ class ReflectionAttribute
         ?Node\Stmt\Namespace_ $namespaceNode = null
     ): self
     {
-        // TODO this is a dirty no-good hack until we figure out what else needs to change to reflect on correct owner
-        return new self($reflector, $node, $reflector->reflectClass('\\Roave\\BetterReflectionTest\\Fixture\\Attr'), true);
+        // $node->getAttribute('parent') is an AttributeGroup, we want the Node that owns the AttributeGroup
+        $owningNode = $node->getAttribute('parent')->getAttribute('parent');
+        $owningReflection = match ($owningNode) {
+            $owningNode instanceof Node\Stmt\Class_ => ReflectionClass::createFromNode($reflector, $owningNode, $locatedSource, $namespaceNode),
+            default => ReflectionClass::createFromInstance($owningNode)
+        };
+        return new self($reflector, $node, $owningReflection, true);
     }
 
     public function getName(): string
